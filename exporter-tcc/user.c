@@ -46,7 +46,7 @@ User create_user(void) {
     return (User){
         .id = 1001,
         .username = strdup("Daniil Shmoylov"),
-        .email = strdup("daniil.example@example.com"),
+        .email = strdup("daniil.shmoylov@example.com"),
         .age = 30,
         .registration_date = {15, 5, 2020},
         .is_active = true,
