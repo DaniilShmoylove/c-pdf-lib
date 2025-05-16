@@ -10,47 +10,56 @@
 #include <CoreText/CoreText.h>
 
 void myDrawContent(CGContextRef context) {
-    // Устанавливаем чёрный цвет
-    CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
-
-    // Создаём шрифт
+    CGContextSaveGState(context);
+    
+    // 1. Размеры страницы A4
+    const CGFloat pageWidth = 595.0;
+    const CGFloat pageHeight = 842.0;
+    
+    // 2. Двойное отражение: по X и Y
+    CGContextTranslateCTM(context, pageWidth, pageHeight); // Смещаем начало координат
+    CGContextScaleCTM(context, -1.0, -1.0);               // Отражаем обе оси
+//    CGAffineTrans
+    // 3. Настройка текста
+    CGAffineTransform transform = CGAffineTransformMake(-1, 0, 0, -1, pageWidth, pageHeight);
+    CGContextConcatCTM(context, transform);
+    
+    // 4. Создаём шрифт
     CTFontRef font = CTFontCreateWithName(CFSTR("Helvetica-Bold"), 36.0, NULL);
     
-    // Создаём атрибуты текста
+    // 5. Формируем атрибуты
     CFStringRef keys[] = { kCTFontAttributeName };
     CFTypeRef values[] = { font };
     CFDictionaryRef attributes = CFDictionaryCreate(
-        NULL,
-        (const void**)keys,
-        (const void**)values,
-        1,
+        NULL, keys, values, 1,
         &kCFTypeDictionaryKeyCallBacks,
         &kCFTypeDictionaryValueCallBacks
     );
     
-    // Создаём строку
-    CFStringRef text = CFSTR("Hello, PDF World!");
-    CFAttributedStringRef attrString = CFAttributedStringCreate(NULL, text, attributes);
+    // 6. Создаём строку
+    CFAttributedStringRef attrString = CFAttributedStringCreate(
+        NULL,
+        CFSTR("TEXT"),
+        attributes
+    );
     
-    // Корректируем координаты
-    CGFloat pageHeight = 842.0; // Высота A4
-    CGFloat textY = 50.0; // 50pt от верхнего края
-    
-    // Настраиваем трансформацию контекста
-    CGContextSetTextMatrix(context, CGAffineTransformIdentity);
-    CGContextTranslateCTM(context, 0, pageHeight); // Перемещаем в верхний левый угол
-    CGContextScaleCTM(context, 1.0, -1.0); // Отражаем ось Y
-    
-    // Рисуем текст
+    // 7. Позиционирование с учётом двойного отражения
     CTLineRef line = CTLineCreateWithAttributedString(attrString);
-    CGContextSetTextPosition(context, 50.0, textY); // 50pt слева, 50pt сверху
+    CGContextSetTextPosition(context,
+        50,
+        pageHeight - 100
+    );
+    
+    // 8. Рисуем текст
     CTLineDraw(line, context);
     
-    // Освобождаем ресурсы
+    // 9. Освобождаем ресурсы
     CFRelease(line);
     CFRelease(attrString);
     CFRelease(attributes);
     CFRelease(font);
+    
+    CGContextRestoreGState(context);
 }
 
 void createPDFFile (CGRect pageRect, const char *filename)// 1
