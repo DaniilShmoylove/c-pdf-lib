@@ -9,7 +9,6 @@
 #include "displayMyPDFPage.h"
 
 void makePNGImageFromPDF(char *path) {
-    const char *pdfPath = "/Users/daniilshmoylov/Desktop/ИСТОРИЯ\ ЗАЧЕТ.pdf"; // Укажите реальный путь
     const size_t pageNumber = 1; // Номер страницы (начинается с 1)
     
     // 1. Создаем контекст для растра (изображения)
@@ -26,7 +25,7 @@ void makePNGImageFromPDF(char *path) {
     );
     
     // 2. Вызываем вашу функцию отрисовки
-    MyDisplayPDFPage(context, pageNumber, pdfPath);
+    MyDisplayPDFPage(context, pageNumber, path);
     
     // 3. Сохраняем результат в PNG-файл
     CGImageRef image = CGBitmapContextCreateImage(context);
@@ -58,3 +57,4 @@ void makePNGImageFromPDF(char *path) {
     
     printf("PDF page saved to /tmp/output.png\n");
 }
+
