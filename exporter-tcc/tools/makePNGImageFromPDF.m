@@ -6,7 +6,7 @@
 //
 
 #include <ImageIO/ImageIO.h>
-#include "displayMyDPFPage.h"
+#include "displayMyPDFPage.h"
 
 void makePNGImageFromPDF(char *path) {
     const char *pdfPath = "/Users/daniilshmoylov/Desktop/ИСТОРИЯ\ ЗАЧЕТ.pdf"; // Укажите реальный путь

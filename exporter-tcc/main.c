@@ -8,25 +8,37 @@
 #include <stdio.h>
 #include "user.h"
 #include "createPDFFile.h"
-//int main(int argc, const char * argv[]) {
-//    User user = create_user();
-//    
-//    printf("%s", user.username);
-//    
-//    free_user(&user);
-//    
-//    MyGetPDFDocumentRef("/Users/daniilshmoylov/Desktop/ИСТОРИЯ\ ЗАЧЕТ.pdf");
-//    
-//    return 0;
-//}
+#include "displayMyPDFPage.h"
+#include "printPDFContent.h"
 
-//#include <UIKit/kUTTypePNG.h>
-
-int main(int argc, const char * argv[]) {
+void performPDF(void) {
     CGRect pdfRect = CGRectMake(0, 0, 595, 842); // A4 size
     const char *filename = "/Users/daniilshmoylov/Downloads/TCC.pdf";
-//    createPDFFIle(CGRectMake(300, 500, 100, 100), "/Users/daniilshmoylov/Desktop/ИСТОРИЯ\ ЗАЧЕТ.pdf");
     User userInfo = create_user();
     createPDFFile(pdfRect, filename, userInfo);
+    
+    const size_t pageNumber = 1; // Номер страницы (начинается с 1)
+    
+    CGRect mediaBox = CGRectMake(0, 0, 595, 842);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = CGBitmapContextCreate(
+        NULL,
+        mediaBox.size.width,
+        mediaBox.size.height,
+        8,
+        0,
+        colorSpace,
+        kCGImageAlphaPremultipliedLast
+    );
+    
+    // 2. Вызываем вашу функцию отрисовки
+    MyDisplayPDFPage(context, pageNumber, filename);
+    
+    
+    printPDFContent(filename);
+}
+
+int main(int argc, const char * argv[]) {
+    performPDF();
     return 0;
 }

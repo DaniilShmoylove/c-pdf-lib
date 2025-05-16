@@ -23,4 +23,5 @@
 */
 void MyDisplayPDFPage(CGContextRef myContext, size_t pageNumber, const char *filename);
 
+CFStringRef ExtractTextFromPDFPage(CGPDFPageRef page);
 #endif // MY_PDF_RENDERER_H
