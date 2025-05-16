@@ -26,6 +26,7 @@ int main(int argc, const char * argv[]) {
     CGRect pdfRect = CGRectMake(0, 0, 595, 842); // A4 size
     const char *filename = "/Users/daniilshmoylov/Downloads/TCC.pdf";
 //    createPDFFIle(CGRectMake(300, 500, 100, 100), "/Users/daniilshmoylov/Desktop/ИСТОРИЯ\ ЗАЧЕТ.pdf");
-    createPDFFile(pdfRect, filename);
+    User userInfo = create_user();
+    createPDFFile(pdfRect, filename, userInfo);
     return 0;
 }

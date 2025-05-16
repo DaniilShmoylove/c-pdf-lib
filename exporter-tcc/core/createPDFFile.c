@@ -8,61 +8,77 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreText/CoreText.h>
+#include "user.h"
 
-void myDrawContent(CGContextRef context) {
+void myDrawContent(CGContextRef context, User userInfo) {
     CGContextSaveGState(context);
     
-    // 1. Размеры страницы A4
     const CGFloat pageWidth = 595.0;
     const CGFloat pageHeight = 842.0;
     
-    // 2. Двойное отражение: по X и Y
-    CGContextTranslateCTM(context, pageWidth, pageHeight); // Смещаем начало координат
-    CGContextScaleCTM(context, -1.0, -1.0);               // Отражаем обе оси
-//    CGAffineTrans
-    // 3. Настройка текста
+    // Ваши оригинальные трансформации
+    CGContextTranslateCTM(context, pageWidth, pageHeight);
+    CGContextScaleCTM(context, -1.0, -1.0);
     CGAffineTransform transform = CGAffineTransformMake(-1, 0, 0, -1, pageWidth, pageHeight);
     CGContextConcatCTM(context, transform);
-    
-    // 4. Создаём шрифт
-    CTFontRef font = CTFontCreateWithName(CFSTR("Helvetica-Bold"), 36.0, NULL);
-    
-    // 5. Формируем атрибуты
-    CFStringRef keys[] = { kCTFontAttributeName };
-    CFTypeRef values[] = { font };
-    CFDictionaryRef attributes = CFDictionaryCreate(
-        NULL, keys, values, 1,
+
+    // 1. Заголовок (36pt)
+    CTFontRef titleFont = CTFontCreateWithName(CFSTR("Helvetica-Bold"), 36.0, NULL);
+    CFStringRef titleKeys[] = { kCTFontAttributeName };
+    CFTypeRef titleValues[] = { titleFont };
+    CFDictionaryRef titleAttrs = CFDictionaryCreate(
+        NULL, titleKeys, titleValues, 1,
         &kCFTypeDictionaryKeyCallBacks,
         &kCFTypeDictionaryValueCallBacks
     );
     
-    // 6. Создаём строку
-    CFAttributedStringRef attrString = CFAttributedStringCreate(
-        NULL,
-        CFSTR("TEXT"),
-        attributes
+    char* username = userInfo.username;
+    CFStringRef cfUsername = CFStringCreateWithCString(NULL, username, kCFStringEncodingUTF8);
+    CFAttributedStringRef titleString = CFAttributedStringCreate(
+        NULL, cfUsername, titleAttrs
     );
     
-    // 7. Позиционирование с учётом двойного отражения
-    CTLineRef line = CTLineCreateWithAttributedString(attrString);
-    CGContextSetTextPosition(context,
-        50,
-        pageHeight - 100
+    CTLineRef titleLine = CTLineCreateWithAttributedString(titleString);
+    CGContextSetTextPosition(context, 50, pageHeight - 100);
+    CTLineDraw(titleLine, context);
+
+    // 2. Основной текст (18pt)
+    CTFontRef bodyFont = CTFontCreateWithName(CFSTR("Helvetica"), 18.0, NULL);
+    CFStringRef bodyKeys[] = { kCTFontAttributeName };
+    CFTypeRef bodyValues[] = { bodyFont };
+    CFDictionaryRef bodyAttrs = CFDictionaryCreate(
+        NULL, bodyKeys, bodyValues, 1,
+        &kCFTypeDictionaryKeyCallBacks,
+        &kCFTypeDictionaryValueCallBacks
     );
     
-    // 8. Рисуем текст
-    CTLineDraw(line, context);
+    char* email = userInfo.email;
+    CFStringRef cfemail = CFStringCreateWithCString(NULL, email, kCFStringEncodingUTF8);
     
-    // 9. Освобождаем ресурсы
-    CFRelease(line);
-    CFRelease(attrString);
-    CFRelease(attributes);
-    CFRelease(font);
+    CFAttributedStringRef bodyString = CFAttributedStringCreate(
+        NULL, cfemail, bodyAttrs
+    );
+    
+    CTLineRef bodyLine = CTLineCreateWithAttributedString(bodyString);
+    CGContextSetTextPosition(context, 50, pageHeight - 140); // Смещаем на 60pt ниже заголовка
+    CTLineDraw(bodyLine, context);
+    
+
+    // Освобождаем все ресурсы
+    CFRelease(titleLine);
+    CFRelease(titleString);
+    CFRelease(titleAttrs);
+    CFRelease(titleFont);
+    
+    CFRelease(bodyLine);
+    CFRelease(bodyString);
+    CFRelease(bodyAttrs);
+    CFRelease(bodyFont);
     
     CGContextRestoreGState(context);
 }
 
-void createPDFFile (CGRect pageRect, const char *filename)// 1
+void createPDFFile (CGRect pageRect, const char *filename, User userInfo)// 1
 {
     CGContextRef pdfContext;
     CFStringRef path;
@@ -90,7 +106,7 @@ void createPDFFile (CGRect pageRect, const char *filename)// 1
     boxData = CFDataCreate(NULL,(const UInt8 *)&pageRect, sizeof (CGRect));
     CFDictionarySetValue(pageDictionary, kCGPDFContextMediaBox, boxData);
     CGPDFContextBeginPage (pdfContext, pageDictionary); // 7
-    myDrawContent (pdfContext);// 8
+    myDrawContent (pdfContext, userInfo);// 8
     CGPDFContextEndPage (pdfContext);// 9
     CGContextRelease (pdfContext);// 10
     CFRelease(pageDictionary); // 11

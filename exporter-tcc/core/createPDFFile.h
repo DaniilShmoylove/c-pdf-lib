@@ -11,8 +11,8 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreFoundation/CoreFoundation.h>
 
-void myDrawContent(CGContextRef context);
+void myDrawContent(CGContextRef context, User userInfo);
 
-void createPDFFile(CGRect pageRect, const char *filename);
+void createPDFFile(CGRect pageRect, const char *filename, User userInfo);
 
 #endif
